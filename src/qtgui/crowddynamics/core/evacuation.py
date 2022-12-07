@@ -1,7 +1,7 @@
 """Evacuation related functions"""
 import numba
 import numpy as np
-from numba.typing.typeof import typeof
+from numba import typeof
 
 from crowddynamics.core.geom2D import line_intersect
 from crowddynamics.core.sensory_region import is_obstacle_between_points

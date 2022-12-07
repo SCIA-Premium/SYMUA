@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from PyQt4 import QtGui
+from PySide6 import QtGui, QtWidgets
 import logging
 import os
 from collections import Iterable
@@ -13,8 +13,6 @@ from crowddynamics.simulation.agents import is_model
 from loggingtools import log_with
 from numba import f8
 from shapely.geometry import Point, LineString, Polygon
-
-from qtgui.exceptions import CrowdDynamicsGUIException, FeatureNotImplemented
 
 CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'conf')
 GRAPHICS_CFG = os.path.join(CONFIG_DIR, 'graphics.cfg')
@@ -305,7 +303,7 @@ def shapes(geom, **kargs):
     elif isinstance(geom, Iterable):
         return sum((shapes(geo, **kargs) for geo in geom), [])
     else:
-        raise CrowdDynamicsGUIException
+        raise Exception('Unknown geometry type')
 
 
 class DataPlot(pg.PlotItem):
@@ -428,7 +426,7 @@ class MultiAgentPlot(pg.PlotItem):
             self.agents.addItem(self)
             self.agents.setData(agents)
         else:
-            raise FeatureNotImplemented('Wrong agents type: "{}"'.format(
+            raise NotImplementedError('Wrong agents type: "{}"'.format(
                 agents))
 
     @log_with(qualname=True, timed=True, ignore=('self',))

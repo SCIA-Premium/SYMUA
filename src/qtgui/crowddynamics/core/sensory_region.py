@@ -1,6 +1,6 @@
 import numba
 from numba.types import f8, boolean
-from numba.typing.typeof import typeof
+from numba import typeof
 
 from crowddynamics.core.geom2D import line_intersect
 from crowddynamics.core.structures import obstacle_type_linear

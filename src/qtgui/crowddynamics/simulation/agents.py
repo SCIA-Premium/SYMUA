@@ -131,7 +131,7 @@ class BodyType(Body):
     @staticmethod
     def _truncnorm(mean, abs_scale):
         """Individual value from truncnorm"""
-        return np.asscalar(truncnorm(-3.0, 3.0, loc=mean, abs_scale=abs_scale))
+        return np.ndarray.item(truncnorm(-3.0, 3.0, loc=mean, abs_scale=abs_scale))
 
     @default('body_types')
     def _default_body_types(self):

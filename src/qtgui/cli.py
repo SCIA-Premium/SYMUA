@@ -3,10 +3,10 @@ import logging
 import sys
 
 import click
-from PyQt6 import QtWidgets, QtCore
+from PySide6 import QtCore, QtWidgets
 from crowddynamics.logging import setup_logging
 
-from qtgui.main import MainWindow
+from main import MainWindow
 
 
 def run_gui(simulation_cfg=None):
@@ -15,8 +15,9 @@ def run_gui(simulation_cfg=None):
 
     logger = logging.getLogger(__name__)
     logger.info('Starting GUI')
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     win = MainWindow()
+    logger.info('Simulation file: %s', simulation_cfg)
     if simulation_cfg:
         win.set_simulations(simulation_cfg)
     win.show()

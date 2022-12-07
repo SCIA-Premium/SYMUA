@@ -121,9 +121,10 @@ def import_module(module_path):
     Returns:
         object: Module that was imported. 
     """
-    base, ext = os.path.splitext(module_path)
+    base, ext = os.path.splitext(module_path[0])
+    print(base)
     _, name = os.path.split(base)
-    spec = importlib.util.spec_from_file_location(name, module_path)
+    spec = importlib.util.spec_from_file_location(name, module_path[0])
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod

@@ -1,13 +1,10 @@
 import logging
 
+from PySide6 import QtGui, QtWidgets
+from crowddynamics.exceptions import InvalidValue, InvalidType
 from loggingtools import log_with
-from PyQt4 import QtGui
-from traitlets.traitlets import (Bool, Complex, Enum, Float, Int, TraitType,
-                                 Tuple, Unicode, UseEnum, is_trait)
-
-from crowddynamics.exceptions import InvalidType, InvalidValue
-from qtgui.exceptions import CrowdDynamicsGUIException
-
+from traitlets.traitlets import TraitType, Int, Float, Complex, \
+    Bool, Unicode, Enum, is_trait, Tuple, UseEnum
 
 def to_string(value):
     if isinstance(value, str):
@@ -41,11 +38,11 @@ def mkQComboBox(default, callback, values):
 
     def new_callback(value): callback(d[value])
 
-    widget = QtGui.QComboBox()
+    widget = QtWidgets.QComboBox()
     widget.addItems(new_values if new_values else [new_default])
     index = widget.findText(new_default)
     widget.setCurrentIndex(index)
-    widget.currentIndexChanged[str].connect(new_callback)
+    widget.currentIndexChanged.connect(new_callback)
     return widget
 
 
@@ -57,10 +54,10 @@ def mkQRadioButton(default, callback):
         default:
 
     Returns:
-        QtGui.QRadioButton:
+        QtWidgets.QRadioButton:
 
     """
-    widget = QtGui.QRadioButton()
+    widget = QtWidgets.QRadioButton()
     widget.setChecked(default)
     widget.toggled.connect(callback)
     return widget
@@ -75,10 +72,10 @@ def mkQDoubleSpinBox(default, callback, values):
         values:
 
     Returns:
-        QtGui.QDoubleSpinBox:
+        QtWidgets.QDoubleSpinBox:
 
     """
-    widget = QtGui.QDoubleSpinBox()
+    widget = QtWidgets.QDoubleSpinBox()
     inf = float("inf")
     minimum, maximum = values if values else (None, None)
     widget.setMinimum(minimum if minimum else -inf)
@@ -97,10 +94,10 @@ def mkQSpinBox(default, callback, values):
         values:
 
     Returns:
-        QtGui.QSpinBox:
+        QtWidgets.QSpinBox:
 
     """
-    widget = QtGui.QSpinBox()
+    widget = QtWidgets.QSpinBox()
     minimum, maximum = values if values else (None, None)
     widget.setMinimum(minimum if minimum else -int(10e7))
     widget.setMaximum(maximum if maximum else int(10e7))
@@ -142,9 +139,9 @@ def create_data_widget(name, default, values, callback):
             Callback function that is called when the value of widget changes.
 
     Returns:
-        typing.Tuple[QtGui.QLabel, QtGui.QWidget]:
+        typing.Tuple[QtWidgets.QLabel, QtWidgets.QWidget]:
     """
-    label = QtGui.QLabel(name)
+    label = QtWidgets.QLabel(name)
 
     if isinstance(default, int):
         return label, mkQSpinBox(default, callback, values)
@@ -156,7 +153,7 @@ def create_data_widget(name, default, values, callback):
         return label, mkQComboBox(default, callback, values)
     else:
         logger = logging.getLogger(__name__)
-        error = CrowdDynamicsGUIException(
+        error = TypeError(
             'Invalid default type: {type}'.format(type=type(default)))
         logger.error(error)
         raise error
@@ -164,7 +161,7 @@ def create_data_widget(name, default, values, callback):
 
 def trait_to_QWidget(name, trait, callback=lambda _: None):
     if is_trait(trait):
-        label = QtGui.QLabel(name)
+        label = QtWidgets.QLabel(name)
 
         if isinstance(trait, Int):
             return label, mkQSpinBox(trait.default_value, callback,

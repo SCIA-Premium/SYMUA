@@ -12,7 +12,7 @@ from multiprocessing import Queue
 
 import numpy as np
 import pyqtgraph as pg
-from PyQt6 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 from copy import deepcopy
 from crowddynamics.simulation.multiagent import MultiAgentProcess, LogicNode, \
     MultiAgentSimulation
@@ -21,10 +21,9 @@ from crowddynamics.utils import import_subclasses
 from loggingtools import log_with
 from traitlets.traitlets import Instance
 
-from qtgui.exceptions import CrowdDynamicsGUIException
-from qtgui.graphics import MultiAgentPlot
-from qtgui.traits import trait_to_QWidget
-from qtgui.ui.gui import Ui_MainWindow
+from graphics import MultiAgentPlot
+from traits import trait_to_QWidget
+from ui.gui import Ui_MainWindow
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +63,7 @@ def clear_widgets(layout):
         layout.itemAt(i).widget().setParent(None)
 
 
-class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     r"""MainWindow
 
     Main window for the grahical user interface. Layout is created by using
@@ -86,6 +85,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
+
         # Simulation with multiprocessing
         self.configs = OrderedDict()
         self.simulation = None
@@ -105,7 +105,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         # self.graphicsLayout.addItem(self.plot_data, 0, 1)
 
         # Buttons
-        self.initButton = QtGui.QPushButton("Initialize Simulation")
+        self.initButton = QtWidgets.QPushButton("Initialize Simulation")
 
         # Sets the functionality and values for the widgets.
         self.enable_controls(False)  # Disable until simulation is set
@@ -113,7 +113,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.startButton.clicked.connect(self.start)
         self.stopButton.clicked.connect(self.stop)
         self.initButton.clicked.connect(self.set_simulation)
-        self.simulationsBox.currentIndexChanged[str].connect(self.set_sidebar)
+        self.simulationsBox.currentIndexChanged.connect(self.set_sidebar)
         self.actionOpen.triggered.connect(self.load_simulation_cfg)
 
     def enable_controls(self, boolean):
@@ -140,7 +140,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def load_simulation_cfg(self):
         """Load simulation configurations"""
         self.simulationsBox.clear()
-        module_path = QtGui.QFileDialog().getOpenFileName(
+        module_path = QtWidgets.QFileDialog().getOpenFileName(
             self, 'Open file', '', 'Python file (*.py)')
         self.set_simulations(module_path)
 
@@ -157,7 +157,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         clear_widgets(self.sidebarLeft)
 
         # Get the simulation
-        simulation_cls = deepcopy(self.configs[simuname])
+        
+        simulation_cls = deepcopy(list(self.configs.values())[simuname])
         simulation_kwargs = {name: trait.default_value for name, trait in
                              class_own_traits(simulation_cls)}
 
@@ -208,7 +209,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             try:
                 self.plot.update_data(message)
                 # self.plot_data.update_data(message)
-            except CrowdDynamicsGUIException as error:
+            except Exception as error:
                 self.logger.error('Plotting stopped to error: {}'.format(
                     error
                 ))
