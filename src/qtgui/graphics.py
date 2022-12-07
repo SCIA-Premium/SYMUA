@@ -203,11 +203,13 @@ class CircularAgents(AgentsBase):
         self.center.setData(agents['position'])
 
         self.direction.setData(
-            lines(agents['position'], agents['velocity'],
-                  2 * agents['radius']))
+            lines(agents['position'], agents['velocity'], 2 * agents['radius']),
+            connect=connect,
+        )
         self.target_direction.setData(
-            lines(agents['position'], agents['target_direction'],
-                  2 * agents['radius']))
+            lines(agents['position'], agents['target_direction'], 2 * agents['radius']),
+            connect=connect,
+        )
 
 
 class ThreeCircleAgents(AgentsBase):
