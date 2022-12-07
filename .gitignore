@@ -1,0 +1,6 @@
+### Python ###
+symua_venv
+__pycache__
+
+### Vscode ###
+.vscode

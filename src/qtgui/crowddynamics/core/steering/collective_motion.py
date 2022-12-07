@@ -3,7 +3,7 @@ import numba
 import numpy as np
 from cell_lists import add_to_cells, neighboring_cells, iter_nearest_neighbors
 from numba import f8, i8
-from numba.typing.typeof import typeof
+from numba import typeof
 
 from crowddynamics.core.sensory_region import is_obstacle_between_points
 from crowddynamics.core.structures import obstacle_type_linear

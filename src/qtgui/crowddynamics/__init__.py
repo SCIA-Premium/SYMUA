@@ -1,6 +1,6 @@
 # Research project for Aalto University, System Analysis Laboratory,
 # created 2016-06-01
-
+"""
 from ._version import get_versions
 
 
@@ -13,3 +13,4 @@ __version__ = get_versions()['version']
 # __all__= []
 
 del get_versions
+"""
