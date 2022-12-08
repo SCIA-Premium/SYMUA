@@ -63,7 +63,9 @@ class ShibuyaField(Field):
 
     @default('spawns')
     def _default_spawns(self):
-        return [Polygon([(318, 550), (400, 553), (462, 628), (474, 700)])]
+        return [Polygon([(318, 550), (400, 553), (462, 628), (474, 700)]),
+                Polygon([(584, 238), (610, 324), (615, 338), (705, 386)])
+        ]
 
     @default('domain')
     def _default_domain(self):
