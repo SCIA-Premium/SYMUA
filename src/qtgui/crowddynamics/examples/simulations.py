@@ -8,7 +8,7 @@ from crowddynamics.simulation.agents import Agents, AgentGroup, Circular, \
     ThreeCircle
 from crowddynamics.simulation.logic import Reset, Integrator, Fluctuation, \
     Adjusting, AgentAgentInteractions, AgentObstacleInteractions, \
-    Orientation, Navigation, InsideDomain
+    Orientation, Navigation, InsideDomain, DeleteDeadAgent, TooManyPeople
 from crowddynamics.simulation.multiagent import MultiAgentSimulation
 
 
@@ -123,12 +123,14 @@ class Hallway(MultiAgentSimulation):
     @default('logic')
     def _default_logic(self):
         return Reset(self) << \
+            DeleteDeadAgent(self) << \
             InsideDomain(self) << (
                 Integrator(self) << (
                     Fluctuation(self),
                     Adjusting(self) << (
                         Navigation(self),
-                        Orientation(self)
+                        Orientation(self),
+                        TooManyPeople(self),
                     ),
                     AgentAgentInteractions(self),
                     AgentObstacleInteractions(self)

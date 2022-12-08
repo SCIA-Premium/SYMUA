@@ -74,7 +74,6 @@ def find_nearest_neighbors(
         cell_indices, neigh_cells, points_indices, cells_count,
         cells_offset, obstacles):
     size = len(position)
-
     neighbors = np.full(
         (size, size_nearest_other),
         fill_value=MISSING_NEIGHBOR, dtype=np.int64)
@@ -103,6 +102,35 @@ def find_nearest_neighbors(
 
         if l < distances_max[j]:
             set_neighbor(j, i, l, neighbors, distances, distances_max)
+
+    return neighbors
+
+
+@numba.jit([(f8[:, :], f8, i8, i8[:], i8[:], i8[:],
+             i8[:], i8[:], typeof(obstacle_type_linear)[:])],
+           nopython=True, nogil=True, cache=True)
+def more_than_five_neighbors(
+        position, sight, size_nearest_other,
+        cell_indices, neigh_cells, points_indices, cells_count,
+        cells_offset, obstacles):
+    size = len(position)
+    neighbors = np.full(
+        size,
+        fill_value=0, dtype=np.int64)
+    '''Current nearest neighbours.'''
+
+    for i, j in iter_nearest_neighbors(
+            cell_indices, neigh_cells, points_indices, cells_count,
+            cells_offset):
+        # Test if line of sight is obstructed by an obstacle
+        #TODO add check if point is near obstacle since it's the most dangerous place
+        if is_obstacle_between_points(position[i], position[j], obstacles):
+            continue
+
+        l = length(position[i] - position[j])
+
+        if l < 1:
+            neighbors[i] += 1
 
     return neighbors
 
@@ -249,7 +277,6 @@ def leader_follower_with_herding_interaction(
     is_leader = agents['is_leader']
     is_follower = agents['is_follower']
     sight_leader = 20.0
-
     cell_size = sight
     points_indices, cells_count, cells_offset, grid_shape = add_to_cells(
         agents['position'], cell_size)
@@ -260,7 +287,6 @@ def leader_follower_with_herding_interaction(
         position, sight,
         size_nearest_other, cell_indices, neigh_cells, points_indices,
         cells_count, cells_offset, obstacles)
-
     direction, has_direction = herding_interaction(
         is_follower, position, velocity, neighbors, weight_position_herding,
         phi)

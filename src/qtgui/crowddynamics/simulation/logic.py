@@ -7,7 +7,7 @@ from matplotlib.path import Path
 from shapely.geometry.polygon import Polygon
 from traitlets.traitlets import Float, Instance, Unicode, default, \
     Int
-
+from cell_lists import add_to_cells, neighboring_cells, iter_nearest_neighbors
 from crowddynamics.core.evacuation import exit_detection
 from crowddynamics.core.geometry import geom_to_linear_obstacles
 from crowddynamics.core.integrator import velocity_verlet_integrator
@@ -18,7 +18,7 @@ from crowddynamics.core.motion.adjusting import force_adjust_agents, \
 from crowddynamics.core.motion.fluctuation import force_fluctuation, \
     torque_fluctuation
 from crowddynamics.core.steering.collective_motion import \
-    leader_follower_with_herding_interaction, leader_follower_interaction
+    leader_follower_with_herding_interaction, leader_follower_interaction, more_than_five_neighbors
 from crowddynamics.core.steering.navigation import getdefault
 from crowddynamics.core.steering.orientation import \
     orient_towards_target_direction
@@ -62,6 +62,50 @@ class Reset(LogicNode):
         agents['force'] = 0
         if is_model(agents, 'three_circle'):
             agents['torque'] = 0
+
+
+class DeleteDeadAgent(LogicNode):
+    """Logic to delete agents marked as inactive"""
+
+    def update(self):
+        agents = self.simulation.agents.array
+        self.simulation.agents.array = np.delete(agents, np.where(~agents["active"]), axis=0)
+
+
+class TooManyPeople(LogicNode):
+    """Logic to kill people that are to pack"""
+
+    sight_follower = Float(
+        default_value=10.0,
+        min=0,
+        help='Maximum distance between agents that are accounted as neighbours '
+             'that can be followed.')
+    size_nearest_other = Int(
+        default_value=5,
+        min=0,
+        help='Maximum number of nearest agents inside sight_herding radius '
+             'that herding agent are following.')
+    def update(self):
+        agents = self.simulation.agents.array
+        field = self.simulation.field
+        obstacles = geom_to_linear_obstacles(field.obstacles)
+        position = agents['position']
+        sight = self.sight_follower
+        points_indices, cells_count, cells_offset, grid_shape = add_to_cells(
+            agents['position'], sight)
+        cell_indices = np.arange(len(cells_count))
+        neigh_cells = neighboring_cells(grid_shape)
+        #TODO add lifepoint or oxygen system
+        agents["active"] = more_than_five_neighbors(
+            position, sight,
+            self.size_nearest_other, cell_indices, neigh_cells, points_indices,
+            cells_count, cells_offset, obstacles) < 5
+
+class Killclose(LogicNode):
+    """Logic to delete agents marked as inactive"""
+
+    def update(self):
+        self.simulation.agents.array["active"] = 0
 
 
 class Integrator(LogicNode):
@@ -342,6 +386,7 @@ class SaveSimulationData(LogicNode):
 
 class InsideDomain(LogicNode):
     """Sets agents not inside the domain inactive."""
+
     def __init__(self, simulation):
         super().__init__(simulation)
         self.simulation.data['inactive'] = 0
