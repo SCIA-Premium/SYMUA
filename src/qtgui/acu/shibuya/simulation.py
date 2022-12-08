@@ -109,8 +109,8 @@ class ShibuyaSimple(MultiAgentSimulation):
         agents.add_non_overlapping_group(
             group=group1,
             position_gen=self.field.sample_spawn(0))
-        agents.add_non_overlapping_group(
-            group=group2,
-            position_gen=self.field.sample_spawn(1))
+        #agents.add_non_overlapping_group(
+        #    group=group2,
+        #    position_gen=self.field.sample_spawn(1))
 
         return agents

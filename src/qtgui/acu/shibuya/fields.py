@@ -20,7 +20,7 @@ class ShibuyaField(Field):
 
     @default('obstacles')
     def _default_obstacles(self):
-        return LineString([(437, 238), (584, 238)]) | \
+        return LineString([(434, 238), (584, 238)]) | \
             LineString([(437, 333), (610, 324)]) | \
             LineString([(584, 238), (574, 0)]) | \
             LineString([(434, 238), (434, 0)]) | \
@@ -54,14 +54,16 @@ class ShibuyaField(Field):
 
     @default('targets')
     def _default_targets(self):
-        return [LineString([(0, 0), (0, self.height)]),
-                LineString([(self.width, 0), (self.width, self.height)])]
+        return [LineString([(0, 520), (510, 982)]),
+                LineString([(764, 982), (1025, 591)]),
+                LineString([(878, 414), (814, 404)]),
+                LineString([(744, 378), (584, 238)]),
+                LineString([(434, 238), (323, 390)]),
+            ]
 
     @default('spawns')
     def _default_spawns(self):
-        return [rectangle(0, 0, self.ratio * self.width, self.height),
-                rectangle((1 - self.ratio) * self.width, 0, self.ratio *
-                          self.width, self.height)]
+        return [Polygon([(318, 550), (400, 553), (462, 628), (474, 700)])]
 
     @default('domain')
     def _default_domain(self):
