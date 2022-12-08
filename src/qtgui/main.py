@@ -7,6 +7,7 @@ designer. [Hess2013]_, [Sepulveda2014]_
 Design of the gui was inspired by the design of RtGraph [campagnola2012]_
 """
 import logging
+from typing import Optional
 from collections import OrderedDict, namedtuple
 from multiprocessing import Queue
 
@@ -14,8 +15,7 @@ import numpy as np
 import pyqtgraph as pg
 from PySide6 import QtGui, QtCore, QtWidgets
 from copy import deepcopy
-from crowddynamics.simulation.multiagent import MultiAgentProcess, LogicNode, \
-    MultiAgentSimulation
+from crowddynamics.simulation.multiagent import MultiAgentProcess, LogicNode, MultiAgentSimulation
 from crowddynamics.traits import class_own_traits
 from crowddynamics.utils import import_subclasses
 from loggingtools import log_with
@@ -27,17 +27,16 @@ from ui.gui import Ui_MainWindow
 
 logger = logging.getLogger(__name__)
 
-Message = namedtuple('Message', 'agents data')
+Message = namedtuple("Message", "agents data")
 
 
 class GuiCommunication(LogicNode):
     """Communication between the GUI and simulation."""
+
     queue = Instance(klass=type(Queue()), allow_none=True)
 
     def update(self, *args, **kwargs):
-        self.queue.put(Message(
-            agents=np.copy(self.simulation.agents.array),
-            data=self.simulation.data))
+        self.queue.put(Message(agents=np.copy(self.simulation.agents.array), data=self.simulation.data))
 
 
 @log_with()
@@ -85,7 +84,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-
         # Simulation with multiprocessing
         self.configs = OrderedDict()
         self.simulation = None
@@ -130,21 +128,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         r"""Reset buffers"""
         clear_queue(self.queue)
 
-    @log_with(qualname=True, ignore=('self',))
+    @log_with(qualname=True, ignore=("self",))
     def set_simulations(self, module_path):
-        self.configs.update(
-            import_subclasses(module_path, MultiAgentSimulation))
+        self.configs.update(import_subclasses(module_path, MultiAgentSimulation))
         self.simulationsBox.addItems(list(self.configs.keys()))
 
-    @log_with(qualname=True, ignore=('self',))
+    @log_with(qualname=True, ignore=("self",))
     def load_simulation_cfg(self):
         """Load simulation configurations"""
         self.simulationsBox.clear()
-        module_path = QtWidgets.QFileDialog().getOpenFileName(
-            self, 'Open file', '', 'Python file (*.py)')
+        module_path = QtWidgets.QFileDialog().getOpenFileName(self, "Open file", "", "Python file (*.py)")
         self.set_simulations(module_path)
 
-    @log_with(qualname=True, ignore=('self',))
+    @log_with(qualname=True, ignore=("self",))
     def set_sidebar(self, simuname):
         """Set sidebar
 
@@ -157,15 +153,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         clear_widgets(self.sidebarLeft)
 
         # Get the simulation
-        
+
         simulation_cls = deepcopy(list(self.configs.values())[simuname])
-        simulation_kwargs = {name: trait.default_value for name, trait in
-                             class_own_traits(simulation_cls)}
+        simulation_kwargs = {name: trait.default_value for name, trait in class_own_traits(simulation_cls)}
 
         def gen_callback(name):
             @log_with()
             def callback(value):
                 simulation_kwargs[name] = value
+
             return callback
 
         for name, trait in class_own_traits(simulation_cls):
@@ -183,14 +179,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         communication = GuiCommunication(simulation)
         communication.queue = self.queue
 
-        node = simulation.logic['Reset']
+        node = simulation.logic["Reset"]
         node.inject_after(communication)
+
+        bg_image: Optional[np.ndarray] = None
+        if hasattr(simulation, "bg_image_data"):
+            bg_image = simulation.bg_image_data
 
         self.plot.configure(
             simulation.field.domain,
             simulation.field.obstacles,
             simulation.field.targets,
-            simulation.agents.array
+            simulation.agents.array,
+            bg_image,
         )
 
         # Last enable controls
@@ -210,9 +211,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.plot.update_data(message)
                 # self.plot_data.update_data(message)
             except Exception as error:
-                self.logger.error('Plotting stopped to error: {}'.format(
-                    error
-                ))
+                self.logger.error("Plotting stopped to error: {}".format(error))
                 self.stop_plotting()
         else:
             self.stop_plotting()
