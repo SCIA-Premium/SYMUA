@@ -28,6 +28,8 @@ CURRENT_DIR = Path(__file__).parent
 
 
 class ShibuyaSimple(MultiAgentSimulation):
+    """ShibuyaSimple."""
+
     size = Int(
         default_value=50,
         min=2)
@@ -41,13 +43,14 @@ class ShibuyaSimple(MultiAgentSimulation):
         default_value=1369.0,
         min=0)
     height = Float(
-        default_value=5.0,
+        default_value=982,
         min=0)
     ratio = Float(
         default_value=1 / 3,
         min=0, max=1)
 
     def attributes1(self):
+        """attributes1."""
         orientation = 0.0
         return dict(body_type=self.body_type,
                     orientation=orientation,
@@ -69,20 +72,18 @@ class ShibuyaSimple(MultiAgentSimulation):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         bg_image = Image.open(CURRENT_DIR / "shibuya.jpg")
-        self.bg_image_data = np.asarray(bg_image)
+        # self.bg_image_data = np.asarray(bg_image)
 
     @default("logic")
     def _default_logic(self):
         return (
             Reset(self)
-            << DeleteDeadAgent(self)
             << InsideDomain(self)
             << (
                 Integrator(self)
                 << (
                     Fluctuation(self),
-                    Adjusting(self) << (Navigation(self), Orientation(self)),
-                    AgentAgentInteractions(self),
+                    Adjusting(self) << (Navigation(self, radius=10, step=50), Orientation(self)),
                     AgentObstacleInteractions(self),
                 )
             )
@@ -97,6 +98,7 @@ class ShibuyaSimple(MultiAgentSimulation):
 
     @default('agents')
     def _default_agents(self):
+        print("setup")
         agents = Agents(agent_type=self.agent_type)
 
         group1 = AgentGroup(size=self.size // 2,
@@ -112,5 +114,6 @@ class ShibuyaSimple(MultiAgentSimulation):
         #agents.add_non_overlapping_group(
         #    group=group2,
         #    position_gen=self.field.sample_spawn(1))
+        print("done")
 
         return agents

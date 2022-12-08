@@ -83,7 +83,7 @@ def circles(radius):
         "pxMode": False,
         "pen": None,
         "symbol": "o",
-        "symbolSize": 0.48,
+        "symbolSize": 5,
     }
 
 
