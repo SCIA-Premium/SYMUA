@@ -30,9 +30,9 @@ class ShibuyaField(Field):
     @default('targets')
     def _default_targets(self):
         return [LineString([(0, 520), (510, 982)]),
-                LineString([(764, 982), (1025, 591)]),
-                LineString([(878, 414), (814, 404)]),
-                LineString([(744, 378), (584, 238)]),
+                # LineString([(764, 982), (1025, 591)]),
+                # LineString([(878, 414), (814, 404)]),
+                # LineString([(744, 378), (584, 238)]),
                 LineString([(434, 238), (323, 390)]),
             ]
 
@@ -45,19 +45,3 @@ class ShibuyaField(Field):
     @default('domain')
     def _default_domain(self):
         return self.convex_hull()
-
-    @observe('width', 'height', 'ratio')
-    def _observe_field(self, change):
-        obstacles = LineString([(0, 0), (self.width, 0)]) | \
-                    LineString([(0, self.height), (self.width, self.height)])
-        spawn0 = rectangle(0, 0, self.ratio * self.width, self.height)
-        spawn1 = rectangle((1 - self.ratio) * self.width, 0, self.ratio *
-                           self.width, self.height)
-
-        target0 = LineString([(0, 0), (0, self.height)])
-        target1 = LineString([(self.width, 0), (self.width, self.height)])
-
-        self.obstacles = obstacles
-        self.spawns = [spawn0, spawn1]
-        self.targets = [target0, target1]
-        self.domain = self.convex_hull()
