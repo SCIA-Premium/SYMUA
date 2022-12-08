@@ -14,24 +14,24 @@ from loggingtools import log_with
 from numba import f8
 from shapely.geometry import Point, LineString, Polygon
 
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'conf')
-GRAPHICS_CFG = os.path.join(CONFIG_DIR, 'graphics.cfg')
-GRAPHICS_CFG_SPEC = os.path.join(CONFIG_DIR, 'graphics_spec.cfg')
+CONFIG_DIR = os.path.join(os.path.dirname(__file__), "conf")
+GRAPHICS_CFG = os.path.join(CONFIG_DIR, "graphics.cfg")
+GRAPHICS_CFG_SPEC = os.path.join(CONFIG_DIR, "graphics_spec.cfg")
 
 
 def color(name, alpha=255):
     return {
-        'blue': QtGui.QColor(0, 0, 255, alpha),
-        'green': QtGui.QColor(0, 255, 0, alpha),
-        'red': QtGui.QColor(255, 0, 0, alpha),
-        'cyan': QtGui.QColor(0, 255, 255, alpha),
-        'magenta': QtGui.QColor(255, 0, 255, alpha),
-        'yellow': QtGui.QColor(255, 255, 0, alpha),
-        'black': QtGui.QColor(0, 0, 0, alpha),
-        'white': QtGui.QColor(255, 255, 255, alpha),
-        'd': QtGui.QColor(150, 150, 150, alpha),
-        'l': QtGui.QColor(200, 200, 200, alpha),
-        's': QtGui.QColor(100, 100, 150, alpha),
+        "blue": QtGui.QColor(0, 0, 255, alpha),
+        "green": QtGui.QColor(0, 255, 0, alpha),
+        "red": QtGui.QColor(255, 0, 0, alpha),
+        "cyan": QtGui.QColor(0, 255, 255, alpha),
+        "magenta": QtGui.QColor(255, 0, 255, alpha),
+        "yellow": QtGui.QColor(255, 255, 0, alpha),
+        "black": QtGui.QColor(0, 0, 0, alpha),
+        "white": QtGui.QColor(255, 255, 255, alpha),
+        "d": QtGui.QColor(150, 150, 150, alpha),
+        "l": QtGui.QColor(200, 200, 200, alpha),
+        "s": QtGui.QColor(100, 100, 150, alpha),
     }[name]
 
 
@@ -42,13 +42,13 @@ def gray_scale(arg, alpha=255):
 
 def color_cycle(size):
     if size == 1:
-        return [color('red')]
+        return [color("red")]
     elif size == 2:
-        return [color('red'), color('green')]
+        return [color("red"), color("green")]
     elif size == 3:
-        return [color('red'), color('green'), color('blue')]
+        return [color("red"), color("green"), color("blue")]
     elif size == 4:
-        return [color('red'), color('green'), color('blue'), color('yellow')]
+        return [color("red"), color("green"), color("blue"), color("yellow")]
     else:
         return [gray_scale(value) for value in np.linspace(0.2, 0.8, size)]
 
@@ -79,33 +79,32 @@ def circles(radius):
         dict:
     """
     return {
-        'pxMode': False,
-        'pen': None,
-        'symbol': 'o',
-        'symbolSize': 2 * radius,
+        "pxMode": False,
+        "pen": None,
+        "symbol": "o",
+        "symbolSize": 0.48,
     }
 
 
 def mk_opts(size=1, **kwargs):
     opts = dict()
 
-    if 'pen' in kwargs:
-        pen = kwargs['pen']
-        opts['pen'] = pen if size == 1 else np.full(size, pen)
+    if "pen" in kwargs:
+        pen = kwargs["pen"]
+        opts["pen"] = pen if size == 1 else np.full(size, pen)
 
-    if 'symbolPen' in kwargs:
-        brush = kwargs['symbolPen']
-        opts['symbolPen'] = brush if size == 1 else np.full(size, brush)
+    if "symbolPen" in kwargs:
+        brush = kwargs["symbolPen"]
+        opts["symbolPen"] = brush if size == 1 else np.full(size, brush)
 
-    if 'symbolBrush' in kwargs:
-        brush = kwargs['symbolBrush']
-        opts['symbolBrush'] = brush if size == 1 else np.full(size, brush)
+    if "symbolBrush" in kwargs:
+        brush = kwargs["symbolBrush"]
+        opts["symbolBrush"] = brush if size == 1 else np.full(size, brush)
 
     return opts
 
 
-@numba.jit([(f8[:, :], f8[:, :], f8[:])],
-           nopython=True, nogil=True, cache=True)
+@numba.jit([(f8[:, :], f8[:, :], f8[:])], nopython=True, nogil=True, cache=True)
 def lines(origin, direction, lengths):
     """Lines
 
@@ -137,8 +136,7 @@ def lines_connect(n):
 
 
 class AgentsBase(object):
-    __slots__ = ('center', 'left', 'right', 'orientation', 'direction',
-                 'target_direction')
+    __slots__ = ("center", "left", "right", "orientation", "direction", "target_direction")
 
     def __init__(self):
         # Torso
@@ -161,9 +159,9 @@ class AgentsBase(object):
 class CircularAgents(AgentsBase):
     def __init__(self, agents):
         super().__init__()
-        assert is_model(agents, 'circular'), 'Agent should be circular model'
+        assert is_model(agents, "circular"), "Agent should be circular model"
 
-    @log_with(qualname=True, ignore=('self',))
+    @log_with(qualname=True, ignore=("self",))
     def addItem(self, widget: pg.PlotItem):
         widget.addItem(self.center)
         widget.addItem(self.direction)
@@ -171,43 +169,38 @@ class CircularAgents(AgentsBase):
 
     def setData(self, agents):
         connect = lines_connect(agents.size)
-        self.center.opts.update(**circles(agents['radius']))
+        # self.center.opts.update(**circles(agents['radius']))
 
-        brushes = np.full(shape=agents.size, fill_value=color('white'))
+        brushes = np.full(shape=agents.size, fill_value=color("white"))
 
-        is_leader = agents['is_leader']
+        is_leader = agents["is_leader"]
         brushes[is_leader] = color_cycle(size=int(np.sum(is_leader)))
 
-        for i, j in enumerate(agents['index_leader']):
+        for i, j in enumerate(agents["index_leader"]):
             if j == -1:
                 continue
             r, g, b, a = brushes[j].getRgb()
             brushes[i] = QtGui.QColor(r, g, b, int(0.30 * 255))
 
         # For inactive agents set lower alpha for current color
-        for i, b in enumerate(~agents['active']):
+        for i, b in enumerate(~agents["active"]):
             if b:
                 r, g, b, a = brushes[i].getRgb()
                 brushes[i] = QtGui.QColor(r, g, b, int(0.15 * a))
 
-        self.center.opts.update(symbolBrush=brushes,
-                                symbolPen=pg.mkPen(color=0.0))
+        # self.center.opts.update(symbolBrush=brushes, symbolPen=pg.mkPen(color=0.0))
 
-        self.direction.opts.update(
-            connect=connect,
-            pen=pg.mkPen('l', width=0.03, cosmetic=False))
-        self.target_direction.opts.update(
-            connect=connect,
-            pen=pg.mkPen('g', width=0.03, cosmetic=False))
+        self.direction.opts.update(connect=connect, pen=pg.mkPen("l", width=0.03, cosmetic=False))
+        self.target_direction.opts.update(connect=connect, pen=pg.mkPen("g", width=0.03, cosmetic=False))
 
-        self.center.setData(agents['position'])
+        self.center.setData(agents["position"], symbolPen=pg.mkPen(color=0.0), **circles(agents["radius"]))
 
         self.direction.setData(
-            lines(agents['position'], agents['velocity'], 2 * agents['radius']),
+            lines(agents["position"], agents["velocity"], 2 * agents["radius"]),
             connect=connect,
         )
         self.target_direction.setData(
-            lines(agents['position'], agents['target_direction'], 2 * agents['radius']),
+            lines(agents["position"], agents["target_direction"], 2 * agents["radius"]),
             connect=connect,
         )
 
@@ -215,10 +208,9 @@ class CircularAgents(AgentsBase):
 class ThreeCircleAgents(AgentsBase):
     def __init__(self, agents):
         super().__init__()
-        assert is_model(agents, 'three_circle'), \
-            'Agent should the three_circle model'
+        assert is_model(agents, "three_circle"), "Agent should the three_circle model"
 
-    @log_with(qualname=True, ignore=('self',))
+    @log_with(qualname=True, ignore=("self",))
     def addItem(self, widget: pg.PlotItem):
         widget.addItem(self.left)
         widget.addItem(self.right)
@@ -228,34 +220,26 @@ class ThreeCircleAgents(AgentsBase):
         widget.addItem(self.target_direction)
 
     def setData(self, agents):
-        self.center.opts.update(**circles(agents['r_t']))
-        self.left.opts.update(**circles(agents['r_s']))
-        self.right.opts.update(**circles(agents['r_s']))
+        self.center.opts.update(**circles(agents["r_t"]))
+        self.left.opts.update(**circles(agents["r_s"]))
+        self.right.opts.update(**circles(agents["r_s"]))
 
         connect = lines_connect(agents.size)
-        self.orientation.opts.update(
-            connect=connect,
-            pen=pg.mkPen('m', width=0.03, cosmetic=False))
-        self.direction.opts.update(
-            connect=connect,
-            pen=pg.mkPen('l', width=0.03, cosmetic=False))
-        self.target_direction.opts.update(
-            connect=connect,
-            pen=pg.mkPen('g', width=0.03, cosmetic=False))
+        self.orientation.opts.update(connect=connect, pen=pg.mkPen("m", width=0.03, cosmetic=False))
+        self.direction.opts.update(connect=connect, pen=pg.mkPen("l", width=0.03, cosmetic=False))
+        self.target_direction.opts.update(connect=connect, pen=pg.mkPen("g", width=0.03, cosmetic=False))
 
-        self.left.setData(agents['position_ls'])
-        self.right.setData(agents['position_rs'])
-        self.center.setData(agents['position'])
+        self.left.setData(agents["position_ls"], **circles(agents["r_t"]))
+        self.right.setData(agents["position_rs"], **circles(agents["r_s"]))
+        self.center.setData(agents["position"], **circles(agents["r_s"]))
 
         self.orientation.setData(
-            lines(agents['position'], unit_vector(agents['orientation']),
-                  1.1 * agents['radius']))
-        self.direction.setData(
-            lines(agents['position'], agents['velocity'],
-                  2 * agents['radius']))
+            lines(agents["position"], unit_vector(agents["orientation"]), 1.1 * agents["radius"]), connect=connect
+        )
+        self.direction.setData(lines(agents["position"], agents["velocity"], 2 * agents["radius"]), connect=connect)
         self.target_direction.setData(
-            lines(agents['position'], agents['target_direction'],
-                  2 * agents['radius']))
+            lines(agents["position"], agents["target_direction"], 2 * agents["radius"]), connect=connect
+        )
 
 
 @log_with()
@@ -305,7 +289,7 @@ def shapes(geom, **kargs):
     elif isinstance(geom, Iterable):
         return sum((shapes(geo, **kargs) for geo in geom), [])
     else:
-        raise Exception('Unknown geometry type')
+        raise Exception("Unknown geometry type")
 
 
 class DataPlot(pg.PlotItem):
@@ -320,8 +304,8 @@ class DataPlot(pg.PlotItem):
         # TODO: clear
 
     def update_data(self, message):
-        self.time_tot.append(message.data['time_tot'])
-        self.goal_reached.append(message.data['goal_reached'])
+        self.time_tot.append(message.data["time_tot"])
+        self.goal_reached.append(message.data["goal_reached"])
         self.plot.setData(self.time_tot, self.goal_reached)
 
 
@@ -342,11 +326,9 @@ class MultiAgentPlot(pg.PlotItem):
         self.showGrid(x=True, y=True, alpha=0.25)
         self.disableAutoRange()
 
-        self.obstacles_kw = dict(
-            pen=pg.mkPen(color=0.0, width=1))
+        self.obstacles_kw = dict(pen=pg.mkPen(color=0.0, width=1))
 
-        self.targets_kw = dict(
-            pen=pg.mkPen(color=0.5, width=1))
+        self.targets_kw = dict(pen=pg.mkPen(color=0.5, width=1))
 
         # Geometry
         self.__domain = None
@@ -419,19 +401,18 @@ class MultiAgentPlot(pg.PlotItem):
 
     @agents.setter
     def agents(self, agents):
-        if is_model(agents, 'circular'):
+        if is_model(agents, "circular"):
             self.__agents = CircularAgents(agents)
             self.agents.addItem(self)
             self.agents.setData(agents)
-        elif is_model(agents, 'three_circle'):
+        elif is_model(agents, "three_circle"):
             self.__agents = ThreeCircleAgents(agents)
             self.agents.addItem(self)
             self.agents.setData(agents)
         else:
-            raise NotImplementedError('Wrong agents type: "{}"'.format(
-                agents))
+            raise NotImplementedError('Wrong agents type: "{}"'.format(agents))
 
-    @log_with(qualname=True, timed=True, ignore=('self',))
+    @log_with(qualname=True, timed=True, ignore=("self",))
     def configure(self, domain, obstacles, targets, agents):
         """Configure plot items"""
         # Clear previous plots and items
@@ -447,6 +428,7 @@ class MultiAgentPlot(pg.PlotItem):
         agents = message.agents
         data = message.data
         self.agents.setData(agents)
-        title = 'Fps: {:.2f} | Iterations: {} | Time: {:.2f} '.format(
-            next(self.frames_per_second), data['iterations'], data['time_tot'])
+        title = "Fps: {:.2f} | Iterations: {} | Time: {:.2f} ".format(
+            next(self.frames_per_second), data["iterations"], data["time_tot"]
+        )
         self.setTitle(title)
