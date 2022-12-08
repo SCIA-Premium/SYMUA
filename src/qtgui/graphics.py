@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Optional
 
 from PySide6 import QtGui, QtWidgets
 import logging
@@ -413,11 +414,14 @@ class MultiAgentPlot(pg.PlotItem):
             raise NotImplementedError('Wrong agents type: "{}"'.format(agents))
 
     @log_with(qualname=True, timed=True, ignore=("self",))
-    def configure(self, domain, obstacles, targets, agents):
+    def configure(self, domain, obstacles, targets, agents, bg_image: Optional[np.ndarray]):
         """Configure plot items"""
         # Clear previous plots and items
         self.clearPlots()
         self.clear()
+        if bg_image is not None:
+            bg_image = pg.ImageItem(image=bg_image)
+            self.addItem(bg_image)
         self.domain = domain
         self.obstacles = obstacles
         self.targets = targets
