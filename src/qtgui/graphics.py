@@ -327,9 +327,9 @@ class MultiAgentPlot(pg.PlotItem):
         self.showGrid(x=True, y=True, alpha=0.25)
         self.disableAutoRange()
 
-        self.obstacles_kw = dict(pen=pg.mkPen(color=0.0, width=1))
+        self.obstacles_kw = dict(pen=pg.mkPen(color=color('red'), width=5))
 
-        self.targets_kw = dict(pen=pg.mkPen(color=0.5, width=1))
+        self.targets_kw = dict(pen=pg.mkPen(color=0.5, width=5))
 
         # Geometry
         self.__domain = None
@@ -391,7 +391,7 @@ class MultiAgentPlot(pg.PlotItem):
         if geom is None:
             self.__targets = None
         else:
-            items = shapes(geom)
+            items = shapes(geom, **self.targets_kw)
             for item in items:
                 self.addItem(item)
             self.__targets = items
@@ -420,8 +420,13 @@ class MultiAgentPlot(pg.PlotItem):
         self.clearPlots()
         self.clear()
         if bg_image is not None:
-            bg_image = pg.ImageItem(image=bg_image)
-            self.addItem(bg_image)
+            # Rotate the image
+            tr = QtGui.QTransform()
+            tr.translate(0, bg_image.shape[0])
+            tr.rotate(-90)
+            bg_image_item = pg.ImageItem(image=bg_image)
+            bg_image_item.setTransform(tr)
+            self.addItem(bg_image_item)
         self.domain = domain
         self.obstacles = obstacles
         self.targets = targets

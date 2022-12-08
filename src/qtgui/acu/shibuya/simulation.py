@@ -38,7 +38,7 @@ class ShibuyaSimple(MultiAgentSimulation):
         default_value='adult',
         values=('adult',))
     width = Float(
-        default_value=40.0,
+        default_value=1369.0,
         min=0)
     height = Float(
         default_value=5.0,
