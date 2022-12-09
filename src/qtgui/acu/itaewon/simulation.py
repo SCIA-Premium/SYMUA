@@ -88,7 +88,7 @@ class Itaewon(MultiAgentSimulation):
                         Navigation(self),
                         PanicAgent(self, spread_panic_factor=self.spread_panic_factor, enable_panic=self.enable_panic),
                         Orientation(self),
-                        TooManyPeople(self),
+                        TooManyPeople(self, enable_panic=self.enable_panic),
                     ),
                     AgentObstacleInteractions(self),
                     AgentAgentInteractions(self),

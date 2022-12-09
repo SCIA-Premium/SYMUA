@@ -102,6 +102,8 @@ class TooManyPeople(LogicNode):
         help="Maximum number of nearest agents inside sight_herding radius " "that herding agent are following.",
     )
 
+    enable_panic = Bool(default_value=True)
+
     def update(self):
         agents = self.simulation.agents.array
         field = self.simulation.field
@@ -129,5 +131,6 @@ class TooManyPeople(LogicNode):
         delta_p = nb_neighbours * 2 + np.random.uniform(-2, 2, size=nb_neighbours.size)
         delta_panic = agents["panic"] + delta_p + is_oxygen_low * 2
         new_oxygen = agents["oxygen"] - nb_neighbours**3
-        agents["panic"] = np.where(delta_panic < BASE_PANIC, BASE_PANIC, delta_panic)
+        if self.enable_panic:
+            agents["panic"] = np.where(delta_panic < BASE_PANIC, BASE_PANIC, delta_panic)
         agents["oxygen"] = np.where(new_oxygen > BASE_OXYGEN, BASE_OXYGEN, new_oxygen)
