@@ -459,11 +459,16 @@ class MultiAgentPlot(pg.PlotItem):
         self.targets = targets
         self.agents = agents
 
+        self.text = pg.TextItem("Loading ...", anchor=(0, -1), color=color("l"))
+        self.addItem(self.text)
+
     def update_data(self, message):
         """Update plot data"""
         agents = message.agents
         data = message.data
         self.agents.setData(agents)
+        if "text_data" in message.data:
+            self.text.setPlainText(message.data["text_data"])
         title = "Fps: {:.2f} | Iterations: {} | Time: {:.2f} ".format(
             next(self.frames_per_second), data["iterations"], data["time_tot"]
         )

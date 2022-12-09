@@ -96,6 +96,13 @@ class Itaewon(MultiAgentSimulation):
     def _default_field(self):
         return fields.ItaewonField()
 
+    def update(self):
+        self.data["text_data"] = self.text_data()
+        super().update()
+
+    def text_data(self):
+        return f"Escaped: {self.data.get('escaped_count', 0)} Died: {self.data.get('dead_count', 0)}"
+
     @default("agents")
     def _default_agents(self):
         agents = Agents(agent_type=self.agent_type)

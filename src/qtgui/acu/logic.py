@@ -16,7 +16,8 @@ class DeleteDeadAgent(LogicNode):
         done = int((~agents["active"]).sum())
         deads = int((agents["oxygen"] <= 0).sum())
         if done or deads:
-            print(f"{done=} {deads=}")
+            self.simulation.data["dead_count"] = self.simulation.data.get("dead_count", 0) + deads
+            self.simulation.data["escaped_count"] = self.simulation.data.get("escaped_count", 0) + done
         self.simulation.agents.array = np.delete(
             agents, np.where((~agents["active"]) | (agents["oxygen"] <= 0)), axis=0
         )
