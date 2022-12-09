@@ -16,8 +16,12 @@ class DeleteDeadAgent(LogicNode):
         done = int((~agents["active"]).sum())
         deads = int((agents["oxygen"] <= 0).sum())
         if done or deads:
-            self.simulation.data["dead_count"] = self.simulation.data.get("dead_count", 0) + deads
-            self.simulation.data["escaped_count"] = self.simulation.data.get("escaped_count", 0) + done
+            self.simulation.data["dead_count"] = (
+                self.simulation.data.get("dead_count", -self.simulation.data.get("never_spawned", 0)) + deads
+            )
+            self.simulation.data["escaped_count"] = (
+                self.simulation.data.get("escaped_count", -self.simulation.data.get("never_spawned", 0)) + done
+            )
         self.simulation.agents.array = np.delete(
             agents, np.where((~agents["active"]) | (agents["oxygen"] <= 0)), axis=0
         )
@@ -77,6 +81,7 @@ class PanicAgent(LogicNode):
                 delta_panic[j] = np.ceil(self.spread_factor * START_PANIC)
 
         agents["panic"] += delta_panic
+        self.simulation.data["is_panic_count"] = int(agents["is_panic"].sum())
 
 
 class TooManyPeople(LogicNode):

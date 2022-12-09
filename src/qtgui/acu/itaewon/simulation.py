@@ -29,7 +29,7 @@ CURRENT_DIR = Path(__file__).parent
 class Itaewon(MultiAgentSimulation):
     """ShibuyaSimple."""
 
-    size = Int(default_value=100, min=2)
+    size = Int(default_value=75, min=2)
     agent_type = Circular
 
     def attributes1(self):
@@ -101,18 +101,20 @@ class Itaewon(MultiAgentSimulation):
         super().update()
 
     def text_data(self):
-        return f"Escaped: {self.data.get('escaped_count', 0)} Died: {self.data.get('dead_count', 0)}"
+        return f"Escaped: {self.data.get('escaped_count', 0)} Died: {self.data.get('dead_count', 0)} Panicking: {self.data.get('is_panic_count', 0)}"
 
     @default("agents")
     def _default_agents(self):
         agents = Agents(agent_type=self.agent_type)
 
-        group1 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes1)
-        group2 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes2)
-        group3 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes3)
+        group1 = AgentGroup(size=self.size, agent_type=self.agent_type, attributes=self.attributes1)
+        group2 = AgentGroup(size=self.size, agent_type=self.agent_type, attributes=self.attributes2)
+        group3 = AgentGroup(size=self.size, agent_type=self.agent_type, attributes=self.attributes3)
 
         agents.add_non_overlapping_group(group=group1, position_gen=self.field.sample_spawn(0))
         agents.add_non_overlapping_group(group=group2, position_gen=self.field.sample_spawn(1))
         agents.add_non_overlapping_group(group=group3, position_gen=self.field.sample_spawn(2))
+
+        self.data["never_spawned"] = 3 * self.size - agents.index
 
         return agents
