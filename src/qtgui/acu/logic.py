@@ -78,7 +78,7 @@ class PanicAgent(LogicNode):
 
         for i in np.where(agents[agents["is_panic"]]):
             for j in neighbors[i]:
-                delta_panic[j] = np.ceil(self.spread_factor * START_PANIC)
+                delta_panic[j] = (~agents[j]["is_panic"]).astype(np.int64) * np.ceil(self.spread_factor * START_PANIC)
 
         agents["panic"] += delta_panic
         self.simulation.data["is_panic_count"] = int(agents["is_panic"].sum())
@@ -121,7 +121,8 @@ class TooManyPeople(LogicNode):
             )
             - 5
         )
-        delta_panic = agents["panic"] + nb_neighbours**3
+        delta_p = nb_neighbours * 2 + np.random.uniform(-1, 1, size=nb_neighbours.size)
+        delta_panic = agents["panic"] + delta_p
         new_oxygen = agents["oxygen"] - nb_neighbours**3
         agents["panic"] = np.where(delta_panic < BASE_PANIC, BASE_PANIC, delta_panic)
         agents["oxygen"] = np.where(new_oxygen > BASE_OXYGEN, BASE_OXYGEN, new_oxygen)

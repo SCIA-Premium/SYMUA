@@ -23,6 +23,9 @@ class ItaewonField(Field):
         return (
             LineString([(0, self.height), (self.left, self.height)])
             | LineString([(self.left + self.out_size, self.height), (self.width, self.height)])
+            | LineString([(0, self.height - self.left), (0, self.height)])
+            | LineString([(self.width, self.height - self.left), (self.width, self.height)])
+            | LineString([(self.left + self.out_size, self.height), (self.width, self.height)])
             | LineString([(0, self.height - self.left), (self.left, self.height - self.left)])
             | LineString(
                 [
