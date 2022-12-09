@@ -13,8 +13,13 @@ class DeleteDeadAgent(LogicNode):
 
     def update(self):
         agents = self.simulation.agents.array
-        self.simulation.agents.array = np.delete(agents, np.where(~agents["active"]), axis=0)
-        self.simulation.agents.array = np.delete(agents, np.where(agents["oxygen"] <= 0), axis=0)
+        done = int((~agents["active"]).sum())
+        deads = int((agents["oxygen"] <= 0).sum())
+        if done or deads:
+            print(f"{done=} {deads=}")
+        self.simulation.agents.array = np.delete(
+            agents, np.where((~agents["active"]) | (agents["oxygen"] <= 0)), axis=0
+        )
 
 
 class PanicAgent(LogicNode):
@@ -38,6 +43,7 @@ class PanicAgent(LogicNode):
 
         no_panic = np.where((agents["is_panic"] == True) & (agents["panic"] < START_PANIC))
         agents["is_panic"][no_panic] = False
+        agents["panic"][no_panic] = BASE_PANIC
         agents["target_direction"][agents["is_panic"] == True] = -agents["target_direction"][agents["is_panic"] == True]
         new_panic = np.where((~agents["is_panic"]) & (agents["panic"] > START_PANIC))
         agents["is_panic"][new_panic] = True
