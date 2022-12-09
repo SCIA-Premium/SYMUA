@@ -5,7 +5,7 @@ from cell_lists import add_to_cells, neighboring_cells, iter_nearest_neighbors
 from numba import f8, i8
 from numba import typeof
 
-from crowddynamics.core.sensory_region import is_obstacle_between_points
+from crowddynamics.core.sensory_region import is_obstacle_between_points, near_obstacle
 from crowddynamics.core.structures import obstacle_type_linear
 from crowddynamics.core.vector2D import length, normalize, weighted_average, dot
 from crowddynamics.simulation.agents import NO_LEADER, NO_TARGET
@@ -118,12 +118,15 @@ def more_than_five_neighbors(
         size,
         fill_value=0, dtype=np.int64)
     '''Current nearest neighbours.'''
-
+    for i in range(size):
+        if near_obstacle(position[i], obstacles):
+            neighbors[i] += 3
+    '''
     for i, j in iter_nearest_neighbors(
             cell_indices, neigh_cells, points_indices, cells_count,
             cells_offset):
         # Test if line of sight is obstructed by an obstacle
-        #TODO add check if point is near obstacle since it's the most dangerous place
+
         if is_obstacle_between_points(position[i], position[j], obstacles):
             continue
 
@@ -131,7 +134,7 @@ def more_than_five_neighbors(
 
         if l < 1:
             neighbors[i] += 1
-
+    '''
     return neighbors
 
 
