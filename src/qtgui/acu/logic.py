@@ -82,7 +82,7 @@ class PanicAgent(LogicNode):
 
         for i in np.where(agents[agents["is_panic"]]):
             for j in neighbors[i]:
-                delta_panic[j] = (~agents[j]["is_panic"]).astype(np.int64) * np.ceil(self.spread_factor * START_PANIC)
+                delta_panic[j] = (~agents[j]["is_panic"]).astype(np.int64) * np.ceil(self.spread_panic_factor * START_PANIC)
 
         agents["panic"] += delta_panic
         self.simulation.data["is_panic_count"] = int(agents["is_panic"].sum())
