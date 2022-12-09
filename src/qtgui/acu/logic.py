@@ -8,4 +8,6 @@ class DeleteDeadAgent(LogicNode):
 
     def update(self):
         agents = self.simulation.agents.array
-        self.simulation.agents.array = np.delete(agents, np.where(~agents["active"]), axis=0)
+        self.simulation.agents.array = np.delete(
+            agents, np.where(~agents["active"]), axis=0
+        )
