@@ -16,6 +16,7 @@ class ItaewonField(Field):
     height = 20
     out_size = 2
     left = 4
+    offset: float = 0.3
 
     @default("obstacles")
     def _default_obstacles(self):
@@ -40,13 +41,23 @@ class ItaewonField(Field):
     @default("spawns")
     def _default_spawns(self):
         return [
-            rectangle(0, self.height - self.left, self.left, self.left),
-            rectangle(self.left, 0, self.left, self.height - self.left),
             rectangle(
-                self.left + self.out_size,
-                self.height - self.left,
-                self.width - self.out_size - self.left,
-                self.left,
+                self.offset,
+                self.height - self.left + self.offset,
+                self.left - 2 * self.offset,
+                self.left - 2 * self.offset,
+            ),
+            rectangle(
+                self.left + self.offset,
+                self.offset,
+                self.left - 2 * self.offset,
+                self.height - self.left - 2 * self.offset,
+            ),
+            rectangle(
+                self.left + self.out_size + self.offset,
+                self.height - self.left + self.offset,
+                self.width - self.out_size - self.left - 2 * self.offset,
+                self.left - 2 * self.offset,
             ),
         ]
 

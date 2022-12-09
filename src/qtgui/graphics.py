@@ -10,7 +10,7 @@ import numba
 import numpy as np
 import pyqtgraph as pg
 from crowddynamics.core.vector2D import normalize, unit_vector, length
-from crowddynamics.simulation.agents import is_model
+from crowddynamics.simulation.agents import is_model, BASE_OXYGEN
 from loggingtools import log_with
 from numba import f8
 from shapely.geometry import Point, LineString, Polygon
@@ -28,6 +28,7 @@ def color(name, alpha=255):
         "cyan": QtGui.QColor(0, 255, 255, alpha),
         "magenta": QtGui.QColor(255, 0, 255, alpha),
         "yellow": QtGui.QColor(255, 255, 0, alpha),
+        "orange": QtGui.QColor(255, 169, 0, alpha),
         "black": QtGui.QColor(0, 0, 0, alpha),
         "white": QtGui.QColor(255, 255, 255, alpha),
         "d": QtGui.QColor(150, 150, 150, alpha),
@@ -179,27 +180,38 @@ class CircularAgents(AgentsBase):
 
         brushes = np.full(shape=agents.size, fill_value=color("white"))
 
-        is_leader = agents["is_leader"]
-        brushes[is_leader] = color_cycle(size=int(np.sum(is_leader)))
+        if "oxygen" in agents.dtype.names:
+            for i, o in enumerate(agents["oxygen"]):
+                if o < BASE_OXYGEN / 4:
+                    brushes[i] = color("red")
+                elif o < BASE_OXYGEN / 2:
+                    brushes[i] = color("orange")
+                elif o < 3 * BASE_OXYGEN / 4:
+                    brushes[i] = color("yellow")
+                else:
+                    brushes[i] = color("green")
+        else:
+            is_leader = agents["is_leader"]
+            brushes[is_leader] = color_cycle(size=int(np.sum(is_leader)))
 
-        for i, j in enumerate(agents["index_leader"]):
-            if j == -1:
-                continue
-            r, g, b, a = brushes[j].getRgb()
-            brushes[i] = QtGui.QColor(r, g, b, int(0.30 * 255))
+            for i, j in enumerate(agents["index_leader"]):
+                if j == -1:
+                    continue
+                r, g, b, a = brushes[j].getRgb()
+                brushes[i] = QtGui.QColor(r, g, b, int(0.30 * 255))
 
-        # For inactive agents set lower alpha for current color
-        for i, b in enumerate(~agents["active"]):
-            if b:
-                r, g, b, a = brushes[i].getRgb()
-                brushes[i] = QtGui.QColor(r, g, b, int(0.15 * a))
+            # For inactive agents set lower alpha for current color
+            for i, b in enumerate(~agents["active"]):
+                if b:
+                    r, g, b, a = brushes[i].getRgb()
+                    brushes[i] = QtGui.QColor(r, g, b, int(0.15 * a))
 
         # self.center.opts.update(symbolBrush=brushes, symbolPen=pg.mkPen(color=0.0))
 
         self.direction.opts.update(connect=connect, pen=pg.mkPen("l", width=0.03, cosmetic=False))
         self.target_direction.opts.update(connect=connect, pen=pg.mkPen("g", width=0.03, cosmetic=False))
 
-        self.center.setData(agents["position"], **circles(agents["radius"]), brush=brushes)
+        self.center.setData(agents["position"], **circles(agents["radius"]), symbolBrush=brushes)
 
         self.direction.setData(
             lines(agents["position"], agents["velocity"], 2 * agents["radius"]),
@@ -332,7 +344,7 @@ class MultiAgentPlot(pg.PlotItem):
         self.showGrid(x=True, y=True, alpha=0.25)
         self.disableAutoRange()
 
-        self.obstacles_kw = dict(pen=pg.mkPen(color=color('red'), width=5))
+        self.obstacles_kw = dict(pen=pg.mkPen(color=color("black"), width=5))
 
         self.targets_kw = dict(pen=pg.mkPen(color=0.5, width=5))
 
