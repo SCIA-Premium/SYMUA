@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PIL import Image
 import numpy as np
-from traitlets.traitlets import Float, Int, Enum, default
+from traitlets.traitlets import Float, Int, Enum, default, Bool
 from crowddynamics.core.vector2D import unit_vector
 from crowddynamics.simulation.agents import Agents, AgentGroup, Circular, ThreeCircle
 
@@ -31,7 +31,11 @@ class Itaewon(MultiAgentSimulation):
 
     size = Int(default_value=75, min=2)
     agent_type = Circular
+    
+    enable_panic = Bool(default_value=True)
+    spread_panic_factor = Float(default_value=0.05, min=0, max=1, help="Factor of spread to neighbors when panic")
 
+    
     def attributes1(self):
         """attributes1."""
         orientation = 0.0
@@ -82,7 +86,7 @@ class Itaewon(MultiAgentSimulation):
                     Adjusting(self)
                     << (
                         Navigation(self),
-                        PanicAgent(self),
+                        PanicAgent(self, spread_panic_factor=self.spread_panic_factor, enable_panic=self.enable_panic),
                         Orientation(self),
                         TooManyPeople(self),
                     ),

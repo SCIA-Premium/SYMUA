@@ -1,5 +1,5 @@
 import numpy as np
-from traitlets.traitlets import Float, Int
+from traitlets.traitlets import Float, Int, Bool
 from cell_lists import add_to_cells, neighboring_cells
 from crowddynamics.core.geometry import geom_to_linear_obstacles
 from crowddynamics.core.steering.collective_motion import more_than_five_neighbors, find_nearest_neighbors
@@ -29,6 +29,8 @@ class DeleteDeadAgent(LogicNode):
 
 class PanicAgent(LogicNode):
     """Logic to make agents panic if too many people are around"""
+    
+    enable_panic = Bool(default_value=True)
 
     sight_neighbors = Float(
         default_value=10.0,
@@ -41,9 +43,11 @@ class PanicAgent(LogicNode):
         help="Maximum number of nearest agents inside sight_herding radius " "that herding agent are following.",
     )
 
-    spread_factor = Float(default_value=0.05, min=0, max=1, help="Factor of spread to neighbors when panic")
-
+    spread_panic_factor = Float(default_value=0.05, min=0, max=1, help="Factor of spread to neighbors when panic")
+    
     def update(self):
+        if not self.enable_panic:
+            return
         agents = self.simulation.agents.array
 
         no_panic = np.where((agents["is_panic"] == True) & (agents["panic"] < START_PANIC))
