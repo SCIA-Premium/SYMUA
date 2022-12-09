@@ -1,6 +1,5 @@
-from crowddynamics.examples.simulations import Hallway
 from crowddynamics.logging import setup_logging
-from crowddynamics.simulation.agents import Circular
+from acu.itaewon.simulation import Itaewon
 
 if __name__ == "__main__":
     setup_logging()
