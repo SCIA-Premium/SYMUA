@@ -121,8 +121,9 @@ class TooManyPeople(LogicNode):
             )
             - 5
         )
-        delta_p = nb_neighbours * 2 + np.random.uniform(-1, 1, size=nb_neighbours.size)
-        delta_panic = agents["panic"] + delta_p
+        is_oxygen_low = agents["oxygen"] < BASE_OXYGEN / 2
+        delta_p = nb_neighbours * 2 + np.random.uniform(-2, 2, size=nb_neighbours.size)
+        delta_panic = agents["panic"] + delta_p + is_oxygen_low * 2
         new_oxygen = agents["oxygen"] - nb_neighbours**3
         agents["panic"] = np.where(delta_panic < BASE_PANIC, BASE_PANIC, delta_panic)
         agents["oxygen"] = np.where(new_oxygen > BASE_OXYGEN, BASE_OXYGEN, new_oxygen)
