@@ -29,7 +29,7 @@ CURRENT_DIR = Path(__file__).parent
 class Itaewon(MultiAgentSimulation):
     """ShibuyaSimple."""
 
-    size = Int(default_value=300, min=2)
+    size = Int(default_value=100, min=2)
     agent_type = Circular
 
     def attributes1(self):
@@ -94,24 +94,12 @@ class Itaewon(MultiAgentSimulation):
     def _default_agents(self):
         agents = Agents(agent_type=self.agent_type)
 
-        group1 = AgentGroup(
-            size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes1
-        )
-        group2 = AgentGroup(
-            size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes2
-        )
-        group3 = AgentGroup(
-            size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes3
-        )
+        group1 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes1)
+        group2 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes2)
+        group3 = AgentGroup(size=self.size // 2, agent_type=self.agent_type, attributes=self.attributes3)
 
-        agents.add_non_overlapping_group(
-            group=group1, position_gen=self.field.sample_spawn(0)
-        )
-        agents.add_non_overlapping_group(
-            group=group2, position_gen=self.field.sample_spawn(1)
-        )
-        agents.add_non_overlapping_group(
-            group=group3, position_gen=self.field.sample_spawn(2)
-        )
+        agents.add_non_overlapping_group(group=group1, position_gen=self.field.sample_spawn(0))
+        agents.add_non_overlapping_group(group=group2, position_gen=self.field.sample_spawn(1))
+        agents.add_non_overlapping_group(group=group3, position_gen=self.field.sample_spawn(2))
 
         return agents
