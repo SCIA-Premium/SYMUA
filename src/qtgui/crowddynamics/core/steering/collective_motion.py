@@ -121,7 +121,7 @@ def more_than_five_neighbors(
     for i in range(size):
         if near_obstacle(position[i], obstacles):
             neighbors[i] += 3
-    '''
+
     for i, j in iter_nearest_neighbors(
             cell_indices, neigh_cells, points_indices, cells_count,
             cells_offset):
@@ -134,7 +134,7 @@ def more_than_five_neighbors(
 
         if l < 1:
             neighbors[i] += 1
-    '''
+
     return neighbors
 
 

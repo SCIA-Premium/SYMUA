@@ -121,15 +121,7 @@ class TooManyPeople(LogicNode):
             )
             - 5
         )
-        new_panic = agents["panic"] + nb_neighbours**3
+        delta_panic = agents["panic"] + nb_neighbours**3
         new_oxygen = agents["oxygen"] - nb_neighbours**3
-        new_panic = np.where(new_panic < BASE_PANIC, BASE_PANIC, new_panic)
-        agents["panic"] = new_panic
+        agents["panic"] = np.where(delta_panic < BASE_PANIC, BASE_PANIC, delta_panic)
         agents["oxygen"] = np.where(new_oxygen > BASE_OXYGEN, BASE_OXYGEN, new_oxygen)
-
-
-class Killclose(LogicNode):
-    """Logic to delete agents marked as inactive"""
-
-    def update(self):
-        self.simulation.agents.array["active"] = 0

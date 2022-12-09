@@ -27,6 +27,5 @@ def near_obstacle(p0, obstacles):
         ymin = min(p1[1], p2[1]) - 0.5
         ymax = max(p1[1], p2[1]) + 0.5
         if xmin < p0[0] < xmax and ymin < p0[1] < ymax:
-            print(p0,p1,p2)
             return True
     return False
