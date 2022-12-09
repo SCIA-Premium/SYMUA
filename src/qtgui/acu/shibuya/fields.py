@@ -14,7 +14,7 @@ def rectangle(x, y, width, height):
 class ShibuyaField(Field):
     width = 30
     height = 20
-    out_size = 5
+    out_size = 2
     left = 4
 
     @default("obstacles")
@@ -22,15 +22,15 @@ class ShibuyaField(Field):
         return (
             LineString([(0, self.height), (self.left, self.height)])
             | LineString([(self.left + self.out_size, self.height), (self.width, self.height)])
-            | LineString([(0, self.height - self.out_size), (self.left, self.height - self.out_size)])
+            | LineString([(0, self.height - self.left), (self.left, self.height - self.left)])
             | LineString(
                 [
-                    (self.left + self.out_size, self.height - self.out_size),
-                    (self.width, self.height - self.out_size),
+                    (self.left + self.left, self.height - self.left),
+                    (self.width, self.height - self.left),
                 ]
             )
-            | LineString([(self.left, 0), (self.left, self.height - self.out_size)])
-            | LineString([(self.left + self.out_size, 0), (self.left + self.out_size, self.height - self.out_size)])
+            | LineString([(self.left, 0), (self.left, self.height - self.left)])
+            | LineString([(self.left + self.left, 0), (self.left + self.left, self.height - self.left)])
         )
 
     @default("targets")
@@ -40,9 +40,14 @@ class ShibuyaField(Field):
     @default("spawns")
     def _default_spawns(self):
         return [
-            rectangle(0, self.height - self.out_size, self.left, self.out_size),
-            rectangle(self.left, 0, self.out_size, self.height - 2 * self.out_size),
-            rectangle(self.left + self.out_size, self.height - self.out_size, self.width - self.out_size self.left, self.out_size),
+            rectangle(0, self.height - self.left, self.left, self.left),
+            rectangle(self.left, 0, self.left, self.height - self.left),
+            rectangle(
+                self.left + self.out_size,
+                self.height - self.left,
+                self.width - self.out_size - self.left,
+                self.left,
+            ),
         ]
 
     @default("domain")

@@ -79,11 +79,16 @@ def circles(radius):
     Returns:
         dict:
     """
+    r = 0.5
+    if len(radius) > 0:
+        r = radius.mean()
+    if r == np.nan:
+        r = 0.5
     return {
         "pxMode": False,
         "pen": None,
         "symbol": "o",
-        "symbolSize": 5,
+        "symbolSize": 2 * r,
     }
 
 
@@ -194,7 +199,7 @@ class CircularAgents(AgentsBase):
         self.direction.opts.update(connect=connect, pen=pg.mkPen("l", width=0.03, cosmetic=False))
         self.target_direction.opts.update(connect=connect, pen=pg.mkPen("g", width=0.03, cosmetic=False))
 
-        self.center.setData(agents["position"], symbolPen=pg.mkPen(color=0.0), **circles(agents["radius"]))
+        self.center.setData(agents["position"], **circles(agents["radius"]), brush=brushes)
 
         self.direction.setData(
             lines(agents["position"], agents["velocity"], 2 * agents["radius"]),
