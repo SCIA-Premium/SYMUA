@@ -27,13 +27,16 @@ from crowddynamics.utils import interpolate_docstring
 
 NO_TARGET = -1
 NO_LEADER = -1
+BASE_OXYGEN = 4096
 
 
 class States(HasTraits):
     active = Bool(
         default_value=True,
         help='Denotes if agent is currently active')
-
+    oxygen = Int(
+        default_value=BASE_OXYGEN,
+        help='Index of the agent that is the leader of this agent.')
     target_reached = Bool(
         default_value=False,
         help='Denotes if agent has reached its target')

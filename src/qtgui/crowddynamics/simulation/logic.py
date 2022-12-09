@@ -24,7 +24,7 @@ from crowddynamics.core.steering.orientation import \
     orient_towards_target_direction
 from crowddynamics.core.structures import obstacle_type_linear
 from crowddynamics.io import save_npy, save_csv, save_geometry_json
-from crowddynamics.simulation.agents import is_model
+from crowddynamics.simulation.agents import is_model, BASE_OXYGEN
 from crowddynamics.simulation.base import LogicNodeBase
 
 
@@ -70,6 +70,7 @@ class DeleteDeadAgent(LogicNode):
     def update(self):
         agents = self.simulation.agents.array
         self.simulation.agents.array = np.delete(agents, np.where(~agents["active"]), axis=0)
+        self.simulation.agents.array = np.delete(agents, np.where(agents["oxygen"] <= 0), axis=0)
 
 
 class TooManyPeople(LogicNode):
@@ -85,6 +86,7 @@ class TooManyPeople(LogicNode):
         min=0,
         help='Maximum number of nearest agents inside sight_herding radius '
              'that herding agent are following.')
+
     def update(self):
         agents = self.simulation.agents.array
         field = self.simulation.field
@@ -95,11 +97,12 @@ class TooManyPeople(LogicNode):
             agents['position'], sight)
         cell_indices = np.arange(len(cells_count))
         neigh_cells = neighboring_cells(grid_shape)
-        #TODO add lifepoint or oxygen system
-        agents["active"] = more_than_five_neighbors(
+        math = more_than_five_neighbors(
             position, sight,
             self.size_nearest_other, cell_indices, neigh_cells, points_indices,
-            cells_count, cells_offset, obstacles) < 5
+            cells_count, cells_offset, obstacles) - 5
+        t = agents["oxygen"] - math ** 3
+        agents["oxygen"] = np.where(t > BASE_OXYGEN, BASE_OXYGEN, t)
 
 class Killclose(LogicNode):
     """Logic to delete agents marked as inactive"""
