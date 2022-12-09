@@ -23,6 +23,7 @@ GRAPHICS_CFG_SPEC = os.path.join(CONFIG_DIR, "graphics_spec.cfg")
 def color(name, alpha=255):
     return {
         "blue": QtGui.QColor(0, 0, 255, alpha),
+        "purple": QtGui.QColor(150, 0, 250, alpha),
         "green": QtGui.QColor(0, 255, 0, alpha),
         "red": QtGui.QColor(255, 0, 0, alpha),
         "cyan": QtGui.QColor(0, 255, 255, alpha),
@@ -88,7 +89,7 @@ def circles(radius):
     return {
         "pxMode": False,
         "pen": None,
-        "symbol": "o",
+        # "symbol": "o",
         "symbolSize": 2 * r,
     }
 
@@ -179,7 +180,7 @@ class CircularAgents(AgentsBase):
         # self.center.opts.update(**circles(agents['radius']))
 
         brushes = np.full(shape=agents.size, fill_value=color("white"))
-        brushes_lines = np.full(shape=agents.size, fill_value=color("white"))
+        symbols_center = np.full(shape=agents.size, fill_value="o")
 
         if "oxygen" in agents.dtype.names:
             for i, o in enumerate(agents["oxygen"]):
@@ -191,16 +192,6 @@ class CircularAgents(AgentsBase):
                     brushes[i] = color("yellow")
                 else:
                     brushes[i] = color("green")
-        elif "panic" in agents.dtype.names:
-            for i, p in enumerate(agents["panic"]):
-                if p < START_PANIC / 4:
-                    brushes_lines[i] = color("red")
-                elif p < START_PANIC / 2:
-                    brushes_lines[i] = color("orange")
-                elif p < 3 * START_PANIC / 4:
-                    brushes_lines[i] = color("yellow")
-                else:
-                    brushes_lines[i] = color("green")
         else:
             is_leader = agents["is_leader"]
             brushes[is_leader] = color_cycle(size=int(np.sum(is_leader)))
@@ -217,21 +208,28 @@ class CircularAgents(AgentsBase):
                     r, g, b, a = brushes[i].getRgb()
                     brushes[i] = QtGui.QColor(r, g, b, int(0.15 * a))
 
+        if "panic" in agents.dtype.names:
+            for i, p in enumerate(agents["panic"]):
+                if p >= START_PANIC:
+                    symbols_center[i] = "p"
+
         # self.center.opts.update(symbolBrush=brushes, symbolPen=pg.mkPen(color=0.0))
 
-        self.direction.opts.update(connect=connect, pen=pg.mkPen("l", width=0.03, cosmetic=False))
+        self.direction.opts.update(
+            connect=connect, pen=pg.mkPen(color("l"), width=0.03, cosmetic=False)
+        )
         self.target_direction.opts.update(connect=connect, pen=pg.mkPen("g", width=0.03, cosmetic=False))
 
-        self.center.setData(agents["position"], **circles(agents["radius"]), symbolBrush=brushes)
+        self.center.setData(agents["position"], **circles(agents["radius"]), symbol=symbols_center, symbolBrush=brushes)
 
         self.direction.setData(
             lines(agents["position"], agents["velocity"], 2 * agents["radius"]),
             connect=connect,
         )
         self.target_direction.setData(
-            lines(agents["position"], agents["target_direction"], 2 * agents["radius"]),
-            connect=connect
+            lines(agents["position"], agents["target_direction"], 2 * agents["radius"]), connect=connect
         )
+
 
 class ThreeCircleAgents(AgentsBase):
     def __init__(self, agents):

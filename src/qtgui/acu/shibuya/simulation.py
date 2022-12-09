@@ -84,7 +84,7 @@ class ShibuyaSimple(MultiAgentSimulation):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         bg_image = Image.open(CURRENT_DIR / "shibuya.jpg")
-        # self.bg_image_data = np.asarray(bg_image)
+        self.bg_image_data = np.asarray(bg_image)
 
     @default("logic")
     def _default_logic(self):
@@ -128,7 +128,7 @@ class ShibuyaSimple(MultiAgentSimulation):
             group=group2, position_gen=self.field.sample_spawn(1)
         )
         agents.add_non_overlapping_group(
-            group=group3, position_gen=self.field.sample_spawn(2)
+            group=group3, position_gen=self.field.sample_spawn(0)
         )
 
         return agents
