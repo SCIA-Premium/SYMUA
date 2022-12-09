@@ -10,7 +10,7 @@ import numba
 import numpy as np
 import pyqtgraph as pg
 from crowddynamics.core.vector2D import normalize, unit_vector, length
-from crowddynamics.simulation.agents import is_model, BASE_OXYGEN
+from crowddynamics.simulation.agents import is_model, BASE_OXYGEN, START_PANIC
 from loggingtools import log_with
 from numba import f8
 from shapely.geometry import Point, LineString, Polygon
@@ -179,6 +179,7 @@ class CircularAgents(AgentsBase):
         # self.center.opts.update(**circles(agents['radius']))
 
         brushes = np.full(shape=agents.size, fill_value=color("white"))
+        brushes_lines = np.full(shape=agents.size, fill_value=color("white"))
 
         if "oxygen" in agents.dtype.names:
             for i, o in enumerate(agents["oxygen"]):
@@ -190,6 +191,16 @@ class CircularAgents(AgentsBase):
                     brushes[i] = color("yellow")
                 else:
                     brushes[i] = color("green")
+        elif "panic" in agents.dtype.names:
+            for i, p in enumerate(agents["panic"]):
+                if p < START_PANIC / 4:
+                    brushes_lines[i] = color("red")
+                elif p < START_PANIC / 2:
+                    brushes_lines[i] = color("orange")
+                elif p < 3 * START_PANIC / 4:
+                    brushes_lines[i] = color("yellow")
+                else:
+                    brushes_lines[i] = color("green")
         else:
             is_leader = agents["is_leader"]
             brushes[is_leader] = color_cycle(size=int(np.sum(is_leader)))
@@ -219,9 +230,8 @@ class CircularAgents(AgentsBase):
         )
         self.target_direction.setData(
             lines(agents["position"], agents["target_direction"], 2 * agents["radius"]),
-            connect=connect,
+            connect=connect
         )
-
 
 class ThreeCircleAgents(AgentsBase):
     def __init__(self, agents):

@@ -28,6 +28,8 @@ from crowddynamics.utils import interpolate_docstring
 NO_TARGET = -1
 NO_LEADER = -1
 BASE_OXYGEN = 4096
+BASE_PANIC = 0
+START_PANIC = 1000
 
 
 class States(HasTraits):
@@ -37,6 +39,12 @@ class States(HasTraits):
     oxygen = Int(
         default_value=BASE_OXYGEN,
         help='Index of the agent that is the leader of this agent.')
+    panic = Int(
+        default_value=BASE_PANIC,
+        help='Panic value.')
+    is_panic = Bool(
+        default_value=False,
+        help='Panic state')
     target_reached = Bool(
         default_value=False,
         help='Denotes if agent has reached its target')

@@ -21,7 +21,7 @@ from crowddynamics.simulation.logic import (
     Reset,
 )
 
-from ..logic import DeleteDeadAgent, TooManyPeople
+from ..logic import DeleteDeadAgent, TooManyPeople, PanicAgent
 
 CURRENT_DIR = Path(__file__).parent
 
@@ -82,6 +82,7 @@ class Itaewon(MultiAgentSimulation):
                     Adjusting(self)
                     << (
                         Navigation(self),
+                        PanicAgent(self),
                         Orientation(self),
                         TooManyPeople(self),
                     ),

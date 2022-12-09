@@ -24,7 +24,7 @@ from crowddynamics.core.steering.orientation import \
     orient_towards_target_direction
 from crowddynamics.core.structures import obstacle_type_linear
 from crowddynamics.io import save_npy, save_csv, save_geometry_json
-from crowddynamics.simulation.agents import is_model, BASE_OXYGEN
+from crowddynamics.simulation.agents import is_model
 from crowddynamics.simulation.base import LogicNodeBase
 
 
